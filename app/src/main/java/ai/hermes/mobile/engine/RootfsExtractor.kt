@@ -60,6 +60,39 @@ class RootfsExtractor(
         sentinelFile.writeText(targetVersion)
     }
 
+    /**
+     * Unpacks a tar.gz archive into [destinationDir] using the specified [tarExecutable]
+     * or provided [runner]. On success, records [targetVersion] into the sentinel.
+     */
+    fun extractFromTarGz(
+        tarGzFile: File,
+        targetVersion: String,
+        tarExecutable: String = "tar",
+        runner: (List<String>) -> Boolean = { cmd ->
+            val proc = ProcessBuilder(cmd).redirectErrorStream(true).start()
+            proc.waitFor() == 0
+        },
+    ): Boolean {
+        if (!tarGzFile.exists() || !tarGzFile.isFile) {
+            return false
+        }
+        if (!destinationDir.exists()) {
+            destinationDir.mkdirs()
+        }
+        val command = listOf(
+            tarExecutable,
+            "-xzf",
+            tarGzFile.absolutePath,
+            "-C",
+            destinationDir.absolutePath,
+        )
+        val success = runner(command)
+        if (success) {
+            markExtracted(targetVersion)
+        }
+        return success
+    }
+
     fun markExtracted(version: String) {
         if (!destinationDir.exists()) {
             destinationDir.mkdirs()
@@ -67,7 +100,8 @@ class RootfsExtractor(
         sentinelFile.writeText(version)
     }
 
-    private fun isExecutableEntry(name: String): Boolean = name.contains("/bin/") || name.contains("/sbin/") || name.endsWith(".sh")
+    private fun isExecutableEntry(name: String): Boolean =
+        name.contains("/bin/") || name.contains("/sbin/") || name.endsWith(".sh")
 
     companion object {
         const val SENTINEL_FILE_NAME = ".rootfs_extracted"

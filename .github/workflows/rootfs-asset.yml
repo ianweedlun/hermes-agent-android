@@ -1,0 +1,85 @@
+name: Hermes Rootfs Packaging Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      alpine_version:
+        description: 'Alpine Linux Version'
+        required: false
+        default: '3.20'
+      publish_release:
+        description: 'Publish as GitHub Release asset'
+        type: boolean
+        required: false
+        default: false
+      release_tag:
+        description: 'Release Tag (required if publish_release is true)'
+        required: false
+        default: 'v0.1.0'
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'rootfs-v*.*.*'
+
+concurrency:
+  group: rootfs-packaging-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-package-rootfs:
+    name: Package ARM64 Alpine Rootfs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU for ARM64 Emulation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Build Hermes ARM64 Rootfs Archive
+        id: build-rootfs
+        run: |
+          ALPINE_VER="${{ github.event.inputs.alpine_version || '3.20' }}"
+          mkdir -p dist
+          ./scripts/build-rootfs-aarch64.sh "$ALPINE_VER" dist
+          
+          CHECKSUM=$(cat dist/hermes-rootfs-aarch64.tar.gz.sha256)
+          SIZE_BYTES=$(stat -c%s dist/hermes-rootfs-aarch64.tar.gz)
+          SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+          
+          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+          echo "size_mb=$SIZE_MB" >> $GITHUB_OUTPUT
+          
+          echo "### 🐧 Alpine aarch64 Rootfs Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Archive** | \`hermes-rootfs-aarch64.tar.gz\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Size** | ${SIZE_MB} MB (${SIZE_BYTES} bytes) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Alpine Base** | v${ALPINE_VER} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SHA-256** | \`${CHECKSUM}\` |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Rootfs Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-rootfs-aarch64
+          path: |
+            dist/hermes-rootfs-aarch64.tar.gz
+            dist/hermes-rootfs-aarch64.tar.gz.sha256
+          retention-days: 30
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_release == 'true')
+        with:
+          tag_name: ${{ github.ref_name || github.event.inputs.release_tag }}
+          name: "Hermes Rootfs ${{ github.ref_name || github.event.inputs.release_tag }}"
+          draft: false
+          prerelease: false
+          files: |
+            dist/hermes-rootfs-aarch64.tar.gz
+            dist/hermes-rootfs-aarch64.tar.gz.sha256
