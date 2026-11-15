@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Central Hermes staff and crest -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,2.5L14,5.5L12,8.5L10,5.5Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M11,9H13V21.5H11Z" />
+    <!-- Left wing -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10.2,10.2C7.4,9.2 4.4,7.0 2.2,4.2C3.1,8.0 5.6,10.8 9.2,12.2Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M9.5,13.2C6.8,12.7 4.7,11.3 3.4,9.4C4.4,12.2 6.6,14.1 9.5,14.8Z" />
+    <!-- Right wing -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M13.8,10.2C16.6,9.2 19.6,7.0 21.8,4.2C20.9,8.0 18.4,10.8 14.8,12.2Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14.5,13.2C17.2,12.7 19.3,11.3 20.6,9.4C19.6,12.2 17.4,14.1 14.5,14.8Z" />
+</vector>
