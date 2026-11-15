@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Hermes Agent</string>
+    <string name="special_use_fgs_subtype">Persistent local AI agent daemon and PRoot Linux runtime supervisor requiring continuous background execution for tool invocation and local IPC.</string>
+    <string name="notification_channel_daemon_name">Hermes Daemon</string>
+    <string name="notification_channel_daemon_description">Ongoing status of the background Hermes Agent runtime</string>
+    <string name="notification_channel_alerts_name">Hermes Alerts</string>
+    <string name="notification_channel_alerts_description">High-priority task completions, errors, and input prompts</string>
+    <string name="notification_title_daemon">Hermes Agent</string>
+    <string name="notification_status_idle">Idle — Ready for instructions</string>
+    <string name="notification_status_thinking">Thinking…</string>
+    <string name="notification_status_executing_tool">Executing Tool: %1$s</string>
+    <string name="notification_status_executing_tool_generic">Executing Tool…</string>
+    <string name="notification_status_error">Error — Check daemon logs</string>
+    <string name="notification_subtext_thermal">Thermal throttling (%1$s)</string>
+    <string name="notification_subtext_step">Step %1$d</string>
+    <string name="notification_action_stop">Stop</string>
+    <string name="notification_action_open_app">Open App</string>
 </resources>

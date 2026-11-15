@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="hermes_brand_primary">#FF6E40</color>
+    <color name="hermes_brand_container">#1A1C24</color>
+    <color name="hermes_brand_accent">#FFB300</color>
+</resources>
