@@ -270,6 +270,7 @@ class HermesNotificationManager(
 
         const val CHANNEL_ID_DAEMON_LOW: String = "channel_daemon_running"
         const val CHANNEL_ID_ALERTS_HIGH: String = "channel_alerts"
+        const val ACTION_OPEN_TERMINAL: String = "ai.hermes.mobile.action.OPEN_TERMINAL"
 
         const val IMPORTANCE_LOW: Int = NotificationManager.IMPORTANCE_LOW
         const val IMPORTANCE_HIGH: Int = NotificationManager.IMPORTANCE_HIGH
