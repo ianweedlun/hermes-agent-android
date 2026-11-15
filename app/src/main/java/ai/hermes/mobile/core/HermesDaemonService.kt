@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
  * Android Foreground Service (`specialUse`) hosting the Hermes Agent daemon lifecycle.
@@ -172,7 +173,7 @@ class HermesDaemonService : Service() {
         topology.initialize()
         val config = ai.hermes.mobile.engine.PRootConfig.fromTopology(
             topology = topology,
-            ipcToken = ipcToken.token,
+            ipcToken = ipcToken.rawToken(),
         )
         if (config.prootBinary.exists()) {
             val supervisor = ai.hermes.mobile.engine.DaemonSupervisor(config)
