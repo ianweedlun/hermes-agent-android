@@ -1,0 +1,34 @@
+# Android & Gradle Build Artifacts
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/*/build
+
+# Android Studio / IntelliJ
+*.ipr
+*.iws
+.idea/
+.navigation/
+
+# Keystore / Secrets
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.token
+secrets.properties
+
+# Fastlane / CI
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Local OS / Scratch
+*.log
+*.tmp
+.hermes/
