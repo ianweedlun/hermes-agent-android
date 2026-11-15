@@ -3,8 +3,9 @@
 ## Objective
 A unified, native Android application for Hermes Agent that integrates an embedded lightweight Linux runtime (via PRoot), a full-screen modern WebView hosting the Hermes WebUI PWA, a native sliding terminal bottom sheet, an ongoing Android Foreground Service with custom Hermes status branding and notifications, and an automated GitHub Actions CI/CD pipeline.
 
-Target GitHub Account: `damnithermes`
-Target Repository: `damnithermes/hermes-mobile`
+Target Repository: `ianweedlun/hermes-agent-android`
+Application ID: `ai.hermes.mobile`
+App Display Name: `Hermes Agent`
 
 ---
 
@@ -51,7 +52,7 @@ hermes-mobile/
 ├── app/
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/org/nousresearch/hermes/
+│   │   │   ├── java/ai/hermes/mobile/
 │   │   │   │   ├── core/           # Foreground service & notification manager
 │   │   │   │   ├── engine/         # PRoot extractor & daemon supervisor
 │   │   │   │   ├── ui/             # WebView PWA host & sliding terminal sheet
@@ -91,7 +92,7 @@ hermes-mobile/
 ---
 
 ## Success Criteria
-1. GitHub repository `damnithermes/hermes-mobile` initialized with Git, remote tracking, and clean commit history.
+1. GitHub repository `ianweedlun/hermes-agent-android` initialized with Git, remote tracking, and clean commit history.
 2. Standard Gradle build structure with wrapper and version catalog in place.
 3. GitHub Actions CI workflow compiles clean debug APK artifact on push.
 4. Notification system posts alerts with the authentic Hermes emblem and title in Android SystemUI.
@@ -101,9 +102,3 @@ hermes-mobile/
 ## Out of Scope (Deferred to V2)
 - Google Play Store billing and closed-track distribution (V1 focus is direct APK / GitHub Releases).
 - Multi-architecture APKs for x86_64 / armv7 (V1 target is strictly `arm64-v8a` for modern Android devices).
-
----
-
-## Open Questions
-1. What is the preferred email address for git commit attribution under `damnithermes`?
-2. Do you want the repository to be **public** or **private** on GitHub?

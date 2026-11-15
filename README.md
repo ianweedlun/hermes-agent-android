@@ -1,6 +1,6 @@
-# Hermes Mobile
+# Hermes Agent for Android (`ianweedlun/hermes-agent-android`)
 
-A unified, native Android application for Hermes Agent. Combines a full-screen modern WebView PWA, an embedded PRoot Linux environment, native Android sliding terminal sheet, and background foreground service notifications carrying the authentic Hermes emblem.
+A unified, native Android application for Hermes Agent (`ai.hermes.mobile`). Combines a full-screen modern WebView PWA, an embedded PRoot Linux environment (Alpine aarch64), native Android sliding terminal sheet, and background foreground service notifications carrying the authentic Hermes emblem.
 
 ## Architecture
 - **Shell:** Android Jetpack & Hardware-accelerated WebView.
