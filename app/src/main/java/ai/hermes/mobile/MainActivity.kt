@@ -1,6 +1,7 @@
 package ai.hermes.mobile
 
 import ai.hermes.mobile.databinding.ActivityMainBinding
+import ai.hermes.mobile.terminal.TerminalSheetController
 import ai.hermes.mobile.ui.HermesWebViewManager
 import android.os.Bundle
 import android.view.View
@@ -17,6 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var sheetController: TerminalSheetController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,13 +53,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomSheet() {
         bottomSheetBehavior = BottomSheetBehavior.from(binding.terminalBottomSheet)
+        sheetController =
+            TerminalSheetController(
+                bottomSheetView = binding.terminalBottomSheet,
+                behavior = bottomSheetBehavior,
+                miniConsoleView = binding.terminalMiniConsole,
+                onBackPressedDispatcher = onBackPressedDispatcher,
+            )
 
         binding.btnToggleTerminal.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            } else {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
+            sheetController.toggle()
         }
     }
 
