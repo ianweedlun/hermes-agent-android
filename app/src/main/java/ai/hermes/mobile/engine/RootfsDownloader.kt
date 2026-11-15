@@ -1,5 +1,6 @@
 package ai.hermes.mobile.engine
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -133,13 +134,16 @@ class HttpRootfsDownloader(
             val calculated = digest.digest().joinToString("") { "%02x".format(it) }
             calculated.equals(expectedSha256.trim(), ignoreCase = true)
         } catch (e: IOException) {
+            Log.w(TAG, "Failed to read file for checksum verification", e)
             false
         } catch (e: NoSuchAlgorithmException) {
+            Log.e(TAG, "SHA-256 algorithm not found", e)
             false
         }
     }
 
     companion object {
+        private const val TAG = "RootfsDownloader"
         const val DEFAULT_CONNECT_TIMEOUT_MS = 15000
         const val DEFAULT_READ_TIMEOUT_MS = 30000
         private const val BUFFER_SIZE = 8192
