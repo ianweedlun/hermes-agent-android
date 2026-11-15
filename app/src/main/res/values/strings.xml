@@ -16,4 +16,9 @@
     <string name="notification_subtext_step">Step %1$d</string>
     <string name="notification_action_stop">Stop</string>
     <string name="notification_action_open_app">Open App</string>
+    <string name="status_proot_active">PROOT ACTIVE</string>
+    <string name="terminal_sheet_title">Terminal &amp; Daemon</string>
+    <string name="terminal_sheet_pty_badge">PTY</string>
+    <string name="terminal_sheet_hint">Swipe up to expand</string>
+    <string name="terminal_sheet_default_log">alpine:proot: listening on loopback IPC</string>
 </resources>
