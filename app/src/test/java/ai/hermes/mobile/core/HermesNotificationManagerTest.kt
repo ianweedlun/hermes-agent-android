@@ -57,7 +57,7 @@ class HermesNotificationManagerTest {
             DaemonStatus(
                 state = AgentState.EXECUTING_TOOL,
                 activeTool = "terminal",
-                stepIndex = 3
+                stepIndex = 3,
             )
         val content = HermesNotificationManager.formatDaemonNotificationContent(status)
 
@@ -89,7 +89,7 @@ class HermesNotificationManagerTest {
             DaemonStatus(
                 state = AgentState.THINKING,
                 stepIndex = 12,
-                thermalLevel = ThermalLevel.SEVERE
+                thermalLevel = ThermalLevel.SEVERE,
             )
         val content = HermesNotificationManager.formatDaemonNotificationContent(status)
 

@@ -29,7 +29,7 @@ data class NotificationChannelSpec(
     val description: String,
     val importance: Int,
     val showBadge: Boolean,
-    val enableVibration: Boolean
+    val enableVibration: Boolean,
 ) {
     fun toNotificationChannel(): NotificationChannel =
         NotificationChannel(id, name, importance).apply {
@@ -47,7 +47,7 @@ data class NotificationContentSpec(
     val text: String,
     val subText: String?,
     val isOngoing: Boolean,
-    val category: String
+    val category: String,
 )
 
 /**
@@ -61,7 +61,7 @@ data class NotificationCopy(
     val executingToolGeneric: String = "Executing Tool…",
     val errorText: String = "Error — Check daemon logs",
     val thermalSubtext: (String) -> String = { level -> "Thermal throttling ($level)" },
-    val stepSubtext: (Int) -> String = { step -> "Step $step" }
+    val stepSubtext: (Int) -> String = { step -> "Step $step" },
 ) {
     companion object {
         fun fromContext(context: Context): NotificationCopy =
@@ -79,7 +79,7 @@ data class NotificationCopy(
                 },
                 stepSubtext = { step ->
                     context.getString(R.string.notification_subtext_step, step)
-                }
+                },
             )
     }
 }
@@ -89,7 +89,7 @@ data class NotificationCopy(
  * dynamic state rendering, and Material 3 branded notification construction.
  */
 class HermesNotificationManager(
-    private val context: Context
+    private val context: Context,
 ) {
     private val platformManager: NotificationManager by lazy {
         context.getSystemService(NotificationManager::class.java)
@@ -106,7 +106,7 @@ class HermesNotificationManager(
                 daemonChannelName = context.getString(R.string.notification_channel_daemon_name),
                 daemonChannelDescription = context.getString(R.string.notification_channel_daemon_description),
                 alertsChannelName = context.getString(R.string.notification_channel_alerts_name),
-                alertsChannelDescription = context.getString(R.string.notification_channel_alerts_description)
+                alertsChannelDescription = context.getString(R.string.notification_channel_alerts_description),
             )
         platformManager.createNotificationChannels(specs.map { it.toNotificationChannel() })
     }
@@ -117,14 +117,15 @@ class HermesNotificationManager(
     fun buildDaemonNotification(
         status: DaemonStatus,
         openAppPendingIntent: PendingIntent,
-        stopServicePendingIntent: PendingIntent
+        stopServicePendingIntent: PendingIntent,
     ): Notification {
         val content =
             formatDaemonNotificationContent(
                 status = status,
-                copy = NotificationCopy.fromContext(context)
+                copy = NotificationCopy.fromContext(context),
             )
-        return NotificationCompat.Builder(context, CHANNEL_ID_DAEMON_LOW)
+        return NotificationCompat
+            .Builder(context, CHANNEL_ID_DAEMON_LOW)
             .setSmallIcon(R.drawable.ic_hermes_status)
             .setLargeIcon(getOrCreateLogoBitmap())
             .setContentTitle(content.title)
@@ -141,14 +142,12 @@ class HermesNotificationManager(
             .addAction(
                 R.drawable.ic_hermes_open,
                 context.getString(R.string.notification_action_open_app),
-                openAppPendingIntent
-            )
-            .addAction(
+                openAppPendingIntent,
+            ).addAction(
                 R.drawable.ic_hermes_stop,
                 context.getString(R.string.notification_action_stop),
-                stopServicePendingIntent
-            )
-            .build()
+                stopServicePendingIntent,
+            ).build()
     }
 
     /**
@@ -157,7 +156,7 @@ class HermesNotificationManager(
     fun updateDaemonNotification(
         status: DaemonStatus,
         openAppPendingIntent: PendingIntent,
-        stopServicePendingIntent: PendingIntent
+        stopServicePendingIntent: PendingIntent,
     ) {
         if (!canPostNotifications()) {
             Log.w(TAG, "Skipping daemon notification update: POST_NOTIFICATIONS not granted")
@@ -167,7 +166,7 @@ class HermesNotificationManager(
             buildDaemonNotification(
                 status = status,
                 openAppPendingIntent = openAppPendingIntent,
-                stopServicePendingIntent = stopServicePendingIntent
+                stopServicePendingIntent = stopServicePendingIntent,
             )
         platformManager.notify(NOTIFICATION_ID_DAEMON, notification)
     }
@@ -178,7 +177,7 @@ class HermesNotificationManager(
     fun postAlertNotification(
         payload: NativeNotificationPayload,
         contentIntent: PendingIntent,
-        notificationId: Int = NOTIFICATION_ID_ALERT_BASE
+        notificationId: Int = NOTIFICATION_ID_ALERT_BASE,
     ) {
         if (!canPostNotifications()) {
             Log.w(TAG, "Skipping alert notification: POST_NOTIFICATIONS not granted")
@@ -198,7 +197,8 @@ class HermesNotificationManager(
                 NotificationCompat.PRIORITY_LOW
             }
         val notification =
-            NotificationCompat.Builder(context, channelId)
+            NotificationCompat
+                .Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_hermes_status)
                 .setLargeIcon(getOrCreateLogoBitmap())
                 .setContentTitle(payload.title)
@@ -223,7 +223,7 @@ class HermesNotificationManager(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS,
             ) == PackageManager.PERMISSION_GRANTED
         } else {
             NotificationManagerCompat.from(context).areNotificationsEnabled()
@@ -235,13 +235,13 @@ class HermesNotificationManager(
             DynamicColors.wrapContextIfAvailable(
                 ContextThemeWrapper(
                     context,
-                    com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar
-                )
+                    com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
+                ),
             )
         return MaterialColors.getColor(
             themedContext,
             androidx.appcompat.R.attr.colorPrimary,
-            fallback
+            fallback,
         )
     }
 
@@ -284,7 +284,7 @@ class HermesNotificationManager(
             daemonChannelName: String = "Hermes Daemon",
             daemonChannelDescription: String = "Ongoing status of the background Hermes Agent runtime",
             alertsChannelName: String = "Hermes Alerts",
-            alertsChannelDescription: String = "High-priority task completions, errors, and input prompts"
+            alertsChannelDescription: String = "High-priority task completions, errors, and input prompts",
         ): List<NotificationChannelSpec> =
             listOf(
                 NotificationChannelSpec(
@@ -293,7 +293,7 @@ class HermesNotificationManager(
                     description = daemonChannelDescription,
                     importance = IMPORTANCE_LOW,
                     showBadge = false,
-                    enableVibration = false
+                    enableVibration = false,
                 ),
                 NotificationChannelSpec(
                     id = CHANNEL_ID_ALERTS_HIGH,
@@ -301,8 +301,8 @@ class HermesNotificationManager(
                     description = alertsChannelDescription,
                     importance = IMPORTANCE_HIGH,
                     showBadge = true,
-                    enableVibration = true
-                )
+                    enableVibration = true,
+                ),
             )
 
         /**
@@ -311,7 +311,7 @@ class HermesNotificationManager(
          */
         fun formatDaemonNotificationContent(
             status: DaemonStatus,
-            copy: NotificationCopy = NotificationCopy()
+            copy: NotificationCopy = NotificationCopy(),
         ): NotificationContentSpec {
             val stateText =
                 when (status.state) {
@@ -342,7 +342,7 @@ class HermesNotificationManager(
                 text = stateText,
                 subText = subText,
                 isOngoing = true,
-                category = NotificationCompat.CATEGORY_SERVICE
+                category = NotificationCompat.CATEGORY_SERVICE,
             )
         }
     }

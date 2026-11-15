@@ -26,7 +26,7 @@ class AgentStateTest {
         val throttledStatus =
             DaemonStatus(
                 state = AgentState.EXECUTING_TOOL,
-                thermalLevel = ThermalLevel.SEVERE
+                thermalLevel = ThermalLevel.SEVERE,
             )
         assertTrue(throttledStatus.isThrottled)
         assertFalse(throttledStatus.shouldHoldWakeLock)
@@ -51,11 +51,11 @@ class AgentStateTest {
         assertEquals(NotificationPriority.DEFAULT, NotificationPriority.fromWireName("other"))
         assertEquals(
             NotificationActionIntent.OPEN_TERMINAL,
-            NotificationActionIntent.fromWireName("open_terminal")
+            NotificationActionIntent.fromWireName("open_terminal"),
         )
         assertEquals(
             NotificationActionIntent.OPEN_CHAT,
-            NotificationActionIntent.fromWireName(null)
+            NotificationActionIntent.fromWireName(null),
         )
     }
 
@@ -66,7 +66,7 @@ class AgentStateTest {
                 uptimeSeconds = 3600L,
                 rssBytes = 157286400L,
                 cpuPercent = 3.5,
-                activeModel = "gemini-3.8-flash"
+                activeModel = "gemini-3.8-flash",
             )
         assertEquals(3600L, telemetry.uptimeSeconds)
         assertEquals("gemini-3.8-flash", telemetry.activeModel)

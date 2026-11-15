@@ -55,7 +55,7 @@ class DaemonPowerControllerTest {
         thermalMonitor.emit(ThermalLevel.SEVERE)
         assertEquals(listOf(ThermalLevel.NONE, ThermalLevel.SEVERE), observed)
         controller.syncWakeLock(
-            DaemonStatus(state = AgentState.EXECUTING_TOOL, thermalLevel = ThermalLevel.SEVERE)
+            DaemonStatus(state = AgentState.EXECUTING_TOOL, thermalLevel = ThermalLevel.SEVERE),
         )
         assertFalse(wakeLock.isHeld)
 
@@ -71,7 +71,7 @@ class DaemonPowerControllerTest {
 
         controller.syncWakeLock(
             status = DaemonStatus(state = AgentState.THINKING),
-            timeoutMs = DaemonPowerController.MAX_WAKELOCK_TIMEOUT_MS * 3
+            timeoutMs = DaemonPowerController.MAX_WAKELOCK_TIMEOUT_MS * 3,
         )
 
         assertEquals(DaemonPowerController.MAX_WAKELOCK_TIMEOUT_MS, wakeLock.lastTimeoutMs)

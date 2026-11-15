@@ -58,7 +58,7 @@ class HermesDaemonService : Service() {
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
-        startId: Int
+        startId: Int,
     ): Int =
         when (intent?.action) {
             ACTION_STOP -> {
@@ -75,7 +75,7 @@ class HermesDaemonService : Service() {
                     state = state,
                     activeTool = activeTool,
                     stepIndex = stepIndex,
-                    sessionId = sessionId
+                    sessionId = sessionId,
                 )
                 START_STICKY
             }
@@ -89,7 +89,7 @@ class HermesDaemonService : Service() {
 
     override fun onTimeout(
         startId: Int,
-        fgsType: Int
+        fgsType: Int,
     ) {
         Log.w(TAG, "Foreground service timeout signaled (startId=$startId, fgsType=$fgsType)")
         shutdownDaemon("Foreground service timeout")
@@ -121,14 +121,14 @@ class HermesDaemonService : Service() {
         state: AgentState,
         activeTool: String? = null,
         stepIndex: Int = _status.value.stepIndex,
-        sessionId: String? = _status.value.sessionId
+        sessionId: String? = _status.value.sessionId,
     ) {
         val updated =
             _status.value.copy(
                 state = state,
                 activeTool = activeTool,
                 stepIndex = stepIndex,
-                sessionId = sessionId
+                sessionId = sessionId,
             )
         _status.value = updated
         powerController.syncWakeLock(updated)
@@ -144,13 +144,13 @@ class HermesDaemonService : Service() {
             notificationManager.buildDaemonNotification(
                 status = _status.value,
                 openAppPendingIntent = createOpenAppPendingIntent(),
-                stopServicePendingIntent = createStopServicePendingIntent()
+                stopServicePendingIntent = createStopServicePendingIntent(),
             )
         ServiceCompat.startForeground(
             this,
             HermesNotificationManager.NOTIFICATION_ID_DAEMON,
             notification,
-            foregroundServiceTypeFlag()
+            foregroundServiceTypeFlag(),
         )
         isForegroundActive = true
         powerController.syncWakeLock(_status.value)
@@ -174,7 +174,7 @@ class HermesDaemonService : Service() {
         if (thermalLevel.isThrottled) {
             Log.w(
                 TAG,
-                "Thermal status ${thermalLevel.label} (${thermalLevel.statusCode}): throttling background work"
+                "Thermal status ${thermalLevel.label} (${thermalLevel.statusCode}): throttling background work",
             )
         }
         refreshForegroundNotification(current)
@@ -187,7 +187,7 @@ class HermesDaemonService : Service() {
         notificationManager.updateDaemonNotification(
             status = current,
             openAppPendingIntent = createOpenAppPendingIntent(),
-            stopServicePendingIntent = createStopServicePendingIntent()
+            stopServicePendingIntent = createStopServicePendingIntent(),
         )
     }
 
@@ -200,7 +200,7 @@ class HermesDaemonService : Service() {
             this,
             REQUEST_CODE_OPEN_APP,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
 
@@ -213,7 +213,7 @@ class HermesDaemonService : Service() {
             this,
             REQUEST_CODE_STOP_SERVICE,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
 

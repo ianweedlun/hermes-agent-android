@@ -10,7 +10,7 @@ import java.util.Base64
  * per `IPC-CONTRACT.md`. Redacts its secret material in [toString] to prevent log leakage.
  */
 class BearerToken private constructor(
-    private val value: String
+    private val value: String,
 ) {
     fun asHeaderValue(): String = "Bearer $value"
 
@@ -25,14 +25,13 @@ class BearerToken private constructor(
         }
         return MessageDigest.isEqual(
             value.toByteArray(StandardCharsets.UTF_8),
-            candidate.toByteArray(StandardCharsets.UTF_8)
+            candidate.toByteArray(StandardCharsets.UTF_8),
         )
     }
 
     override fun toString(): String = "BearerToken(***REDACTED***)"
 
-    override fun equals(other: Any?): Boolean =
-        this === other || (other is BearerToken && value == other.value)
+    override fun equals(other: Any?): Boolean = this === other || (other is BearerToken && value == other.value)
 
     override fun hashCode(): Int = value.hashCode()
 
@@ -57,7 +56,7 @@ object IpcTokenGenerator {
      */
     fun generate(
         byteLength: Int = DEFAULT_BYTE_LENGTH,
-        random: SecureRandom = SecureRandom()
+        random: SecureRandom = SecureRandom(),
     ): BearerToken {
         require(byteLength >= MIN_BYTE_LENGTH) {
             "IPC bearer token must be at least $MIN_BYTE_LENGTH bytes (128 bits)."

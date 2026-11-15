@@ -6,12 +6,12 @@ package ai.hermes.mobile.core
 enum class AgentState(
     val wireName: String,
     val displayName: String,
-    val requiresWakeLock: Boolean
+    val requiresWakeLock: Boolean,
 ) {
     IDLE(wireName = "idle", displayName = "Idle", requiresWakeLock = false),
     THINKING(wireName = "thinking", displayName = "Thinking", requiresWakeLock = true),
     EXECUTING_TOOL(wireName = "executing_tool", displayName = "Executing Tool", requiresWakeLock = true),
-    ERROR(wireName = "error", displayName = "Error", requiresWakeLock = false)
+    ERROR(wireName = "error", displayName = "Error", requiresWakeLock = false),
     ;
 
     companion object {
@@ -32,7 +32,7 @@ enum class AgentState(
 enum class ThermalLevel(
     val statusCode: Int,
     val isThrottled: Boolean,
-    val label: String
+    val label: String,
 ) {
     NONE(statusCode = 0, isThrottled = false, label = "Normal"),
     LIGHT(statusCode = 1, isThrottled = false, label = "Light"),
@@ -40,7 +40,7 @@ enum class ThermalLevel(
     SEVERE(statusCode = 3, isThrottled = true, label = "Severe"),
     CRITICAL(statusCode = 4, isThrottled = true, label = "Critical"),
     EMERGENCY(statusCode = 5, isThrottled = true, label = "Emergency"),
-    SHUTDOWN(statusCode = 6, isThrottled = true, label = "Shutdown")
+    SHUTDOWN(statusCode = 6, isThrottled = true, label = "Shutdown"),
     ;
 
     companion object {
@@ -61,7 +61,7 @@ data class DaemonStatus(
     val activeTool: String? = null,
     val stepIndex: Int = 0,
     val sessionId: String? = null,
-    val thermalLevel: ThermalLevel = ThermalLevel.NONE
+    val thermalLevel: ThermalLevel = ThermalLevel.NONE,
 ) {
     val isThrottled: Boolean
         get() = thermalLevel.isThrottled
@@ -77,7 +77,7 @@ data class DaemonTelemetry(
     val uptimeSeconds: Long,
     val rssBytes: Long,
     val cpuPercent: Double,
-    val activeModel: String
+    val activeModel: String,
 ) {
     init {
         require(uptimeSeconds >= 0L) { "uptimeSeconds must be non-negative" }
@@ -90,10 +90,10 @@ data class DaemonTelemetry(
  * Priority levels defined by `native/notify` in `IPC-CONTRACT.md`.
  */
 enum class NotificationPriority(
-    val wireName: String
+    val wireName: String,
 ) {
     DEFAULT("default"),
-    HIGH("high")
+    HIGH("high"),
     ;
 
     companion object {
@@ -108,10 +108,10 @@ enum class NotificationPriority(
  * Target navigation action for `native/notify` in `IPC-CONTRACT.md`.
  */
 enum class NotificationActionIntent(
-    val wireName: String
+    val wireName: String,
 ) {
     OPEN_CHAT("open_chat"),
-    OPEN_TERMINAL("open_terminal")
+    OPEN_TERMINAL("open_terminal"),
     ;
 
     companion object {
@@ -129,5 +129,5 @@ data class NativeNotificationPayload(
     val title: String,
     val body: String,
     val priority: NotificationPriority = NotificationPriority.DEFAULT,
-    val actionIntent: NotificationActionIntent = NotificationActionIntent.OPEN_CHAT
+    val actionIntent: NotificationActionIntent = NotificationActionIntent.OPEN_CHAT,
 )

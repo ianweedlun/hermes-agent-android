@@ -29,7 +29,7 @@ internal interface ThermalMonitor {
 }
 
 internal class AndroidWakeLockHandle(
-    private val wakeLock: PowerManager.WakeLock
+    private val wakeLock: PowerManager.WakeLock,
 ) : WakeLockHandle {
     override val isHeld: Boolean
         get() = wakeLock.isHeld
@@ -45,13 +45,12 @@ internal class AndroidWakeLockHandle(
 
 internal class AndroidThermalMonitor(
     context: Context,
-    private val powerManager: PowerManager
+    private val powerManager: PowerManager,
 ) : ThermalMonitor {
     private val appContext: Context = context.applicationContext
     private var listener: PowerManager.OnThermalStatusChangedListener? = null
 
-    override fun currentThermalLevel(): ThermalLevel =
-        ThermalLevel.fromPlatformStatus(powerManager.currentThermalStatus)
+    override fun currentThermalLevel(): ThermalLevel = ThermalLevel.fromPlatformStatus(powerManager.currentThermalStatus)
 
     override fun register(onThermalChanged: (ThermalLevel) -> Unit) {
         if (listener != null) {
@@ -64,7 +63,7 @@ internal class AndroidThermalMonitor(
         try {
             powerManager.addThermalStatusListener(
                 ContextCompat.getMainExecutor(appContext),
-                createdListener
+                createdListener,
             )
             listener = createdListener
             onThermalChanged(currentThermalLevel())
@@ -96,15 +95,15 @@ internal class AndroidThermalMonitor(
 internal class DaemonPowerController(
     private val wakeLock: WakeLockHandle,
     private val thermalMonitor: ThermalMonitor,
-    private val onThermalChanged: (ThermalLevel) -> Unit
+    private val onThermalChanged: (ThermalLevel) -> Unit,
 ) {
     constructor(
         context: Context,
-        onThermalChanged: (ThermalLevel) -> Unit
+        onThermalChanged: (ThermalLevel) -> Unit,
     ) : this(
         wakeLock = createPlatformWakeLock(context),
         thermalMonitor = createPlatformThermalMonitor(context),
-        onThermalChanged = onThermalChanged
+        onThermalChanged = onThermalChanged,
     )
 
     fun registerThermalListener() {
@@ -123,7 +122,7 @@ internal class DaemonPowerController(
      */
     fun syncWakeLock(
         status: DaemonStatus,
-        timeoutMs: Long = DEFAULT_WAKELOCK_TIMEOUT_MS
+        timeoutMs: Long = DEFAULT_WAKELOCK_TIMEOUT_MS,
     ) {
         if (status.shouldHoldWakeLock) {
             acquireWithTimeout(timeoutMs)
