@@ -12,7 +12,7 @@ import java.io.OutputStream
 class PtySocketClientTest {
     private class FakePtyConnection(
         var inputData: ByteArray = ByteArray(0),
-    ) : PtyConnection {
+    ) : PtySocketConnection {
         private var open = false
         val outputStream = ByteArrayOutputStream()
 

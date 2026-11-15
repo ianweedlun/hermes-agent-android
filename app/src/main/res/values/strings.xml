@@ -20,5 +20,14 @@
     <string name="terminal_sheet_title">Terminal &amp; Daemon</string>
     <string name="terminal_sheet_pty_badge">PTY</string>
     <string name="terminal_sheet_hint">Swipe up to expand</string>
+    <string name="terminal_sheet_hint_collapse">Swipe down to collapse</string>
     <string name="terminal_sheet_default_log">alpine:proot: listening on loopback IPC</string>
+    <string name="terminal_action_clear">Clear terminal</string>
+    <string name="terminal_action_send">Send command</string>
+    <string name="terminal_action_ctrl_c">Ctrl+C interrupt</string>
+    <string name="terminal_action_tab">Tab completion</string>
+    <string name="terminal_input_hint">Enter shell command…</string>
+    <string name="terminal_overflow_indicator">64KB buffer cap: %1$d B dropped</string>
+    <string name="terminal_overflow_badge">64KB+</string>
+    <string name="terminal_drag_handle_description">Toggle terminal drawer</string>
 </resources>
