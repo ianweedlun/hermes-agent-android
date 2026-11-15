@@ -1,0 +1,74 @@
+name: Hermes Mobile CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    name: Build, Lint & Binary Telemetry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Detekt Static Analysis
+        run: ./gradlew detekt --continue
+
+      - name: Run Ktlint Check
+        run: ./gradlew ktlintCheck --continue
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Assemble Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: APK Binary Size & Composition Telemetry
+        id: apk-telemetry
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          if [ -n "$APK_PATH" ]; then
+            TOTAL_SIZE=$(stat -c%s "$APK_PATH")
+            TOTAL_SIZE_MB=$(echo "scale=2; $TOTAL_SIZE / 1048576" | bc)
+            echo "Found APK at $APK_PATH: ${TOTAL_SIZE_MB} MB"
+            
+            echo "### 📦 APK Binary Telemetry" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Total Size** | **${TOTAL_SIZE_MB} MB** (${TOTAL_SIZE} bytes) |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Architecture** | arm64-v8a |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Package ID** | ai.hermes.mobile.debug |" >> $GITHUB_STEP_SUMMARY
+            
+            echo "#### Component Size Breakdown" >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+            unzip -l "$APK_PATH" | sort -k3 -n -r | head -n 25 >> $GITHUB_STEP_SUMMARY
+            echo "```" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No APK produced"
+            exit 1
+          fi
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-agent-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
