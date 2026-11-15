@@ -1,0 +1,31 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+complexity:
+  ComplexMethod:
+    threshold: 15
+  LongMethod:
+    threshold: 60
+  LargeClass:
+    threshold: 400
+  TooManyFunctions:
+    threshold: 20
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+  SwallowedException:
+    active: true
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: true
