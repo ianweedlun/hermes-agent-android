@@ -83,9 +83,18 @@ data class PRootConfig(
             ipcToken: String? = null,
             sharedStorageDir: File? = null,
             command: List<String> = DEFAULT_COMMAND,
-        ): PRootConfig =
-            PRootConfig(
-                prootBinary = File(topology.binDir, "proot"),
+        ): PRootConfig {
+            val prootInBin = File(topology.binDir, "proot")
+            val prootInRootfs = File(topology.rootfsDir, "bin/proot")
+            val prootInUsrBin = File(topology.rootfsDir, "usr/bin/proot")
+            val prootBinary = when {
+                prootInBin.exists() -> prootInBin
+                prootInRootfs.exists() -> prootInRootfs
+                prootInUsrBin.exists() -> prootInUsrBin
+                else -> prootInBin
+            }
+            return PRootConfig(
+                prootBinary = prootBinary,
                 rootfsDir = topology.rootfsDir,
                 workspaceDir = topology.workspaceDir,
                 stateDir = topology.stateDir,
@@ -94,5 +103,6 @@ data class PRootConfig(
                 ipcToken = ipcToken,
                 customCommand = command,
             )
+        }
     }
 }
