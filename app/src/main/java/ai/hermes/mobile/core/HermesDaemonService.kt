@@ -38,6 +38,7 @@ class HermesDaemonService : Service() {
     private lateinit var notificationManager: HermesNotificationManager
     private lateinit var powerController: DaemonPowerController
 
+    private var daemonSupervisor: ai.hermes.mobile.engine.DaemonSupervisor? = null
     private var isForegroundActive: Boolean = false
 
     /**
@@ -154,10 +155,39 @@ class HermesDaemonService : Service() {
         )
         isForegroundActive = true
         powerController.syncWakeLock(_status.value)
+
+        // Start DaemonSupervisor in background
+        serviceScope.launch {
+            startDaemonProcessIfNeeded()
+        }
+    }
+
+    private fun startDaemonProcessIfNeeded() {
+        if (daemonSupervisor?.currentState == ai.hermes.mobile.engine.DaemonProcessState.RUNNING ||
+            daemonSupervisor?.currentState == ai.hermes.mobile.engine.DaemonProcessState.STARTING
+        ) {
+            return
+        }
+        val topology = ai.hermes.mobile.engine.StorageTopology(this)
+        topology.initialize()
+        val config = ai.hermes.mobile.engine.PRootConfig.fromTopology(
+            topology = topology,
+            ipcToken = ipcToken.token,
+        )
+        if (config.prootBinary.exists()) {
+            val supervisor = ai.hermes.mobile.engine.DaemonSupervisor(config)
+            daemonSupervisor = supervisor
+            val started = supervisor.start()
+            Log.i(TAG, "DaemonSupervisor launch initiated: success=$started")
+        } else {
+            Log.w(TAG, "PRoot binary not found at ${config.prootBinary.absolutePath}; awaiting rootfs extraction")
+        }
     }
 
     private fun shutdownDaemon(reason: String) {
         Log.i(TAG, "Shutting down HermesDaemonService: $reason")
+        daemonSupervisor?.stop()
+        daemonSupervisor = null
         _status.update { it.copy(state = AgentState.IDLE, activeTool = null) }
         powerController.releaseWakeLock()
         if (isForegroundActive) {

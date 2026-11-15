@@ -32,3 +32,4 @@ fastlane/test_output
 *.log
 *.tmp
 .hermes/
+.worktrees/
