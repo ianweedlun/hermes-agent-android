@@ -15,10 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import androidx.lifecycle.lifecycleScope
 
 /**
  * Primary entry point for Hermes Agent on Android.
@@ -123,6 +119,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val DEFAULT_UI_URL = "http://127.0.0.1:8787/"
+        const val DEFAULT_UI_URL = "http://127.0.0.1:8888/"
     }
 }
