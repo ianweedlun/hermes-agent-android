@@ -62,7 +62,7 @@ internal class AndroidThermalMonitor(
                 onThermalChanged(ThermalLevel.fromPlatformStatus(platformStatus))
             }
         try {
-            powerManager.addThermalStatusChangedListener(
+            powerManager.addThermalStatusListener(
                 ContextCompat.getMainExecutor(appContext),
                 createdListener
             )
@@ -76,7 +76,7 @@ internal class AndroidThermalMonitor(
     override fun unregister() {
         val activeListener = listener ?: return
         try {
-            powerManager.removeThermalStatusChangedListener(activeListener)
+            powerManager.removeThermalStatusListener(activeListener)
         } catch (e: IllegalArgumentException) {
             Log.w(TAG, "Thermal status listener already unregistered", e)
         } finally {
