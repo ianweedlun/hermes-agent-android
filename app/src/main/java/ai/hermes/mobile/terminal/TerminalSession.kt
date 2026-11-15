@@ -42,10 +42,18 @@ class TerminalSession(
     private val _outputBuffer = MutableStateFlow(TerminalBufferState())
     val outputBuffer: StateFlow<TerminalBufferState> = _outputBuffer.asStateFlow()
 
-    private val _resizeEvents = MutableSharedFlow<TerminalDimensions>(extraBufferCapacity = EVENT_BUFFER_CAPACITY)
+    private val _resizeEvents =
+        MutableSharedFlow<TerminalDimensions>(
+            replay = 1,
+            extraBufferCapacity = EVENT_BUFFER_CAPACITY,
+        )
     val resizeEvents: SharedFlow<TerminalDimensions> = _resizeEvents.asSharedFlow()
 
-    private val _inputEvents = MutableSharedFlow<ByteArray>(extraBufferCapacity = EVENT_BUFFER_CAPACITY)
+    private val _inputEvents =
+        MutableSharedFlow<ByteArray>(
+            replay = 1,
+            extraBufferCapacity = EVENT_BUFFER_CAPACITY,
+        )
     val inputEvents: SharedFlow<ByteArray> = _inputEvents.asSharedFlow()
 
     fun attachInputSink(sink: PtyInputSink?) {

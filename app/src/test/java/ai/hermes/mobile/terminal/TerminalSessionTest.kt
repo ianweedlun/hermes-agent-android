@@ -1,8 +1,10 @@
 package ai.hermes.mobile.terminal
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -35,7 +37,7 @@ class TerminalSessionTest {
         session.appendOutput("progress 10%\rprogress 99%")
         assertEquals("progress 99%", session.outputBuffer.value.plainText)
 
-        session.appendOutput("\b\b00%")
+        session.appendOutput("\b\b\b100%")
         assertEquals("progress 100%", session.outputBuffer.value.plainText)
 
         session.appendOutput("\u001B[2Jfresh")
@@ -64,52 +66,56 @@ class TerminalSessionTest {
     @Test
     fun resizeEmitsEventsAndClampsToValidBounds() =
         runBlocking {
-            val session = TerminalSession(initialDimensions = TerminalDimensions(cols = 80, rows = 24))
+            withTimeout(3000L) {
+                val session = TerminalSession(initialDimensions = TerminalDimensions(cols = 80, rows = 24))
 
-            val eventDeferred = async { session.resizeEvents.first() }
-            val changed = session.resize(cols = 120, rows = 40)
-            assertTrue(changed)
-            assertEquals(TerminalDimensions(cols = 120, rows = 40), eventDeferred.await())
-            assertEquals(TerminalDimensions(cols = 120, rows = 40), session.dimensions.value)
+                val eventDeferred = async(Dispatchers.Unconfined) { session.resizeEvents.first() }
+                val changed = session.resize(cols = 120, rows = 40)
+                assertTrue(changed)
+                assertEquals(TerminalDimensions(cols = 120, rows = 40), eventDeferred.await())
+                assertEquals(TerminalDimensions(cols = 120, rows = 40), session.dimensions.value)
 
-            // Identical dimensions should not emit a duplicate resize
-            assertFalse(session.resize(cols = 120, rows = 40))
+                // Identical dimensions should not emit a duplicate resize
+                assertFalse(session.resize(cols = 120, rows = 40))
 
-            // Out-of-bounds dimensions clamp cleanly
-            assertTrue(session.resize(cols = 2, rows = 999))
-            assertEquals(
-                TerminalDimensions(cols = TerminalDimensions.MIN_COLS, rows = TerminalDimensions.MAX_ROWS),
-                session.dimensions.value,
-            )
+                // Out-of-bounds dimensions clamp cleanly
+                assertTrue(session.resize(cols = 2, rows = 999))
+                assertEquals(
+                    TerminalDimensions(cols = TerminalDimensions.MIN_COLS, rows = TerminalDimensions.MAX_ROWS),
+                    session.dimensions.value,
+                )
+            }
         }
 
     @Test
     fun commandWritingForwardsBytesAndRespectsLifecycle() =
         runBlocking {
-            val writtenPayloads = mutableListOf<String>()
-            val session =
-                TerminalSession(
-                    inputSink = { bytes ->
-                        writtenPayloads.add(bytes.toString(Charsets.UTF_8))
-                        true
-                    },
-                )
+            withTimeout(3000L) {
+                val writtenPayloads = mutableListOf<String>()
+                val session =
+                    TerminalSession(
+                        inputSink = { bytes ->
+                            writtenPayloads.add(bytes.toString(Charsets.UTF_8))
+                            true
+                        },
+                    )
 
-            val inputDeferred = async { session.inputEvents.first() }
-            assertTrue(session.writeCommand("uname -a"))
-            assertEquals("uname -a\n", inputDeferred.await().toString(Charsets.UTF_8))
-            assertEquals(listOf("uname -a\n"), writtenPayloads)
+                val inputDeferred = async(Dispatchers.Unconfined) { session.inputEvents.first() }
+                assertTrue(session.writeCommand("uname -a"))
+                assertEquals("uname -a\n", inputDeferred.await().toString(Charsets.UTF_8))
+                assertEquals(listOf("uname -a\n"), writtenPayloads)
 
-            // Already newline-terminated command does not double-append newline
-            assertTrue(session.writeCommand("pwd\n"))
-            assertEquals("pwd\n", writtenPayloads.last())
+                // Already newline-terminated command does not double-append newline
+                assertTrue(session.writeCommand("pwd\n"))
+                assertEquals("pwd\n", writtenPayloads.last())
 
-            // Empty input rejected
-            assertFalse(session.writeInput(""))
+                // Empty input rejected
+                assertFalse(session.writeInput(""))
 
-            // Disconnected session rejects further writes
-            session.close()
-            assertEquals(TerminalSessionState.DISCONNECTED, session.sessionState.value)
-            assertFalse(session.writeCommand("echo fail"))
+                // Disconnected session rejects further writes
+                session.close()
+                assertEquals(TerminalSessionState.DISCONNECTED, session.sessionState.value)
+                assertFalse(session.writeCommand("echo fail"))
+            }
         }
 }
