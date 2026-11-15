@@ -1,0 +1,95 @@
+name: Hermes Mobile Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & Publish Release APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Detekt Static Analysis
+        run: ./gradlew detekt
+
+      - name: Run Ktlint Check
+        run: ./gradlew ktlintCheck
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Assemble Release APK
+        run: ./gradlew assembleRelease
+
+      - name: Sign & Package Release Artifacts
+        id: package
+        run: |
+          VERSION="${GITHUB_REF_NAME:-v0.1.0}"
+          RAW_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
+          
+          if [ -z "$RAW_APK" ]; then
+            echo "Release APK not found"
+            exit 1
+          fi
+          
+          DIST_DIR="dist"
+          mkdir -p "$DIST_DIR"
+          
+          FINAL_APK="${DIST_DIR}/hermes-agent-${VERSION}-arm64-v8a.apk"
+          cp "$RAW_APK" "$FINAL_APK"
+          
+          # Generate SHA-256 checksum
+          cd "$DIST_DIR"
+          sha256sum "hermes-agent-${VERSION}-arm64-v8a.apk" > "checksums.sha256"
+          CHECKSUM=$(cat "checksums.sha256")
+          cd ..
+          
+          echo "checksum=$CHECKSUM" >> $GITHUB_OUTPUT
+          echo "apk_path=$FINAL_APK" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: "Hermes Agent ${{ steps.package.outputs.version }}"
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          body: |
+            ## Hermes Agent Mobile (${{ steps.package.outputs.version }})
+            
+            A unified native Android application for Hermes Agent (`ai.hermes.mobile`).
+            
+            ### 📦 Release Artifacts
+            - **Binary:** `hermes-agent-${{ steps.package.outputs.version }}-arm64-v8a.apk`
+            - **Target:** Android 10+ (`arm64-v8a`)
+            
+            ### 🔒 SHA-256 Checksum
+            ```
+            ${{ steps.package.outputs.checksum }}
+            ```
+          files: |
+            dist/hermes-agent-${{ steps.package.outputs.version }}-arm64-v8a.apk
+            dist/checksums.sha256
