@@ -9,7 +9,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 
-interface PtyConnection {
+interface PtySocketConnection {
     val isConnected: Boolean
 
     fun open(): Boolean
@@ -26,7 +26,7 @@ interface PtyConnection {
  */
 class LocalSocketConnection(
     private val socketFile: File,
-) : PtyConnection {
+) : PtySocketConnection {
     private var localSocket: LocalSocket? = null
     private val connected = AtomicBoolean(false)
 
@@ -70,7 +70,7 @@ class LocalSocketConnection(
  * Manages the PTY byte stream with 64KB backpressure protection per IPC-CONTRACT.md.
  */
 class PtySocketClient(
-    private val connection: PtyConnection,
+    private val connection: PtySocketConnection,
     private val onBytesReceived: (ByteArray, Int) -> Unit,
     private val onOverflow: ((Int) -> Unit)? = null,
 ) {
