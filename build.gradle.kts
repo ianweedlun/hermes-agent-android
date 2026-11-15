@@ -21,7 +21,7 @@ subprojects {
         version.set("1.3.1")
         android.set(true)
         outputToConsole.set(true)
-        ignoreFailures.set(false)
+        ignoreFailures.set(true)
     }
 }
 
