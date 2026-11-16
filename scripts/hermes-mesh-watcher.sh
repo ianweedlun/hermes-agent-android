@@ -4,7 +4,7 @@
 set -u
 
 REPO="ianweedlun/hermes-agent-android"
-AI_MEMORY_URL="http://pixel-10-pro-fold.tail0f6462.ts.net:49374/mcp"
+AI_MEMORY_URL="http://127.0.0.1:49374/mcp"
 AUTH_TOKEN_FILE="$HOME/.hermes/ai-memory.json"
 GH_TOKEN_FILE="$HOME/src/vibes/agent-gh-token"
 SEEN_MESSAGES_FILE="$HOME/.hermes/seen_mesh_messages.txt"

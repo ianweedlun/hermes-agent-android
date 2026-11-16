@@ -51,7 +51,12 @@ internal class AndroidClipboardGateway(
         if (clip.itemCount <= 0) {
             return null
         }
-        val text = clip.getItemAt(0)?.coerceToText(appContext)?.toString().orEmpty()
+        val text =
+            clip
+                .getItemAt(0)
+                ?.coerceToText(appContext)
+                ?.toString()
+                .orEmpty()
         val description = clip.description
         val sensitive = description?.extras?.getBoolean(sensitiveExtraKey(), false) ?: false
         val timestamp = description?.timestamp?.takeIf { it > 0L } ?: clock()

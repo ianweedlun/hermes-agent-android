@@ -26,10 +26,13 @@ Defines versioning, automated signing, GitHub Releases packaging, and on-device 
 
 ## 4. Verification Gate (Air Lab Requirement)
 - **Strict Pre-Install Gate:** No build may be designated for user installation or placed in `~/storage/downloads` without prior validation in the MacBook Air test lab (AVD emulator harness `scripts/run-device-tests.sh`).
+- **Zero-Ian-Touch Sprint Protocol:**
+  - Automated fix loops run autonomously against lab failures.
+  - User notification occurs ONLY upon a fully verified green APK.
 - Every build candidate must produce an explicit lab test report verifying:
   1. APK installation & package integrity
   2. Foreground service initialization (`HermesDaemonService` running, `isForeground=true`)
   3. PRoot binary presence and execution
-  4. Local daemon port binding (`127.0.0.1:8888`) and readiness probe success
+  4. Local daemon port binding (`127.0.0.1:8787`) and readiness probe success
   5. WebView UI loading without `ERR_CONNECTION_REFUSED`
 - User installation is blocked until the Air lab test report is presented with passing assertions.

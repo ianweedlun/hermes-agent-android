@@ -13,95 +13,106 @@ import java.io.IOException
 import java.security.MessageDigest
 
 class RootfsDownloaderTest {
-
     @get:Rule
     val tempFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
-    fun downloadSuccessfulWithoutChecksum() = runBlocking {
-        val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
-        val content = "fake-rootfs-binary-content".toByteArray()
+    fun downloadSuccessfulWithoutChecksum() =
+        runBlocking {
+            val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
+            val content = "fake-rootfs-binary-content".toByteArray()
 
-        val downloader = HttpRootfsDownloader(
-            streamOpener = { ByteArrayInputStream(content) },
-        )
+            val downloader =
+                HttpRootfsDownloader(
+                    streamOpener = { ByteArrayInputStream(content) },
+                )
 
-        val result = downloader.download(
-            url = "https://example.com/assets/rootfs.tar.gz",
-            destinationFile = destFile,
-        )
+            val result =
+                downloader.download(
+                    url = "https://example.com/assets/rootfs.tar.gz",
+                    destinationFile = destFile,
+                )
 
-        assertTrue(result.isSuccess)
-        val file = result.getOrThrow()
-        assertTrue(file.exists())
-        assertEquals("fake-rootfs-binary-content", file.readText())
-    }
-
-    @Test
-    fun downloadSuccessfulWithValidChecksum() = runBlocking {
-        val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
-        val content = "test-arm64-alpine-payload".toByteArray()
-        val expectedSha = sha256Hex(content)
-
-        var progressCalls = 0
-        val downloader = HttpRootfsDownloader(
-            streamOpener = { ByteArrayInputStream(content) },
-        )
-
-        val result = downloader.download(
-            url = "https://example.com/assets/rootfs.tar.gz",
-            destinationFile = destFile,
-            expectedSha256 = expectedSha,
-            onProgress = { progress ->
-                progressCalls++
-                assertTrue(progress.bytesDownloaded > 0)
-            },
-        )
-
-        assertTrue(result.isSuccess)
-        assertTrue(destFile.exists())
-        assertTrue(progressCalls > 0)
-        assertTrue(downloader.verifyChecksum(destFile, expectedSha))
-    }
+            assertTrue(result.isSuccess)
+            val file = result.getOrThrow()
+            assertTrue(file.exists())
+            assertEquals("fake-rootfs-binary-content", file.readText())
+        }
 
     @Test
-    fun downloadFailsAndDeletesTempWhenChecksumMismatches() = runBlocking {
-        val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
-        val content = "tampered-content".toByteArray()
+    fun downloadSuccessfulWithValidChecksum() =
+        runBlocking {
+            val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
+            val content = "test-arm64-alpine-payload".toByteArray()
+            val expectedSha = sha256Hex(content)
 
-        val downloader = HttpRootfsDownloader(
-            streamOpener = { ByteArrayInputStream(content) },
-        )
+            var progressCalls = 0
+            val downloader =
+                HttpRootfsDownloader(
+                    streamOpener = { ByteArrayInputStream(content) },
+                )
 
-        val result = downloader.download(
-            url = "https://example.com/assets/rootfs.tar.gz",
-            destinationFile = destFile,
-            expectedSha256 = "0000000000000000000000000000000000000000000000000000000000000000",
-        )
+            val result =
+                downloader.download(
+                    url = "https://example.com/assets/rootfs.tar.gz",
+                    destinationFile = destFile,
+                    expectedSha256 = expectedSha,
+                    onProgress = { progress ->
+                        progressCalls++
+                        assertTrue(progress.bytesDownloaded > 0)
+                    },
+                )
 
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is SecurityException)
-        assertFalse(destFile.exists())
-        assertFalse(File(destFile.parentFile, "${destFile.name}.downloading").exists())
-    }
+            assertTrue(result.isSuccess)
+            assertTrue(destFile.exists())
+            assertTrue(progressCalls > 0)
+            assertTrue(downloader.verifyChecksum(destFile, expectedSha))
+        }
 
     @Test
-    fun downloadFailsGracefullyOnStreamException() = runBlocking {
-        val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
+    fun downloadFailsAndDeletesTempWhenChecksumMismatches() =
+        runBlocking {
+            val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
+            val content = "tampered-content".toByteArray()
 
-        val downloader = HttpRootfsDownloader(
-            streamOpener = { throw IOException("Connection reset by peer") },
-        )
+            val downloader =
+                HttpRootfsDownloader(
+                    streamOpener = { ByteArrayInputStream(content) },
+                )
 
-        val result = downloader.download(
-            url = "https://example.com/assets/rootfs.tar.gz",
-            destinationFile = destFile,
-        )
+            val result =
+                downloader.download(
+                    url = "https://example.com/assets/rootfs.tar.gz",
+                    destinationFile = destFile,
+                    expectedSha256 = "0000000000000000000000000000000000000000000000000000000000000000",
+                )
 
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull() is IOException)
-        assertFalse(destFile.exists())
-    }
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is SecurityException)
+            assertFalse(destFile.exists())
+            assertFalse(File(destFile.parentFile, "${destFile.name}.downloading").exists())
+        }
+
+    @Test
+    fun downloadFailsGracefullyOnStreamException() =
+        runBlocking {
+            val destFile = File(tempFolder.newFolder("downloads"), "hermes-rootfs-aarch64.tar.gz")
+
+            val downloader =
+                HttpRootfsDownloader(
+                    streamOpener = { throw IOException("Connection reset by peer") },
+                )
+
+            val result =
+                downloader.download(
+                    url = "https://example.com/assets/rootfs.tar.gz",
+                    destinationFile = destFile,
+                )
+
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is IOException)
+            assertFalse(destFile.exists())
+        }
 
     @Test
     fun verifyChecksumReturnsFalseForNonexistentOrMismatchedFile() {
