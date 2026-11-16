@@ -53,7 +53,10 @@ object HermesWebViewManager {
                 ) {
                     super.onReceivedError(view, request, error)
                     val failingUrl = request?.url?.toString()
-                    if (request?.isForMainFrame == true && failingUrl?.startsWith("http://127.0.0.1:8888") == true) {
+                    if (request?.isForMainFrame == true &&
+                        (failingUrl?.startsWith("http://127.0.0.1:8787") == true ||
+                            failingUrl?.startsWith("http://127.0.0.1:8888") == true)
+                    ) {
                         // Retry loading once the background server is up
                         view?.postDelayed({ view.loadUrl(failingUrl) }, 1000)
                     }

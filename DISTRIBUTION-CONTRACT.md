@@ -33,6 +33,6 @@ Defines versioning, automated signing, GitHub Releases packaging, and on-device 
   1. APK installation & package integrity
   2. Foreground service initialization (`HermesDaemonService` running, `isForeground=true`)
   3. PRoot binary presence and execution
-  4. Local daemon port binding (`127.0.0.1:8888`) and readiness probe success
+  4. Local daemon port binding (`127.0.0.1:8787`) and readiness probe success
   5. WebView UI loading without `ERR_CONNECTION_REFUSED`
 - User installation is blocked until the Air lab test report is presented with passing assertions.

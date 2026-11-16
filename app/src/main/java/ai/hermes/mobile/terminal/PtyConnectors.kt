@@ -39,25 +39,39 @@ fun interface PtyConnector {
 class UnixSocketPtyConnector(
     private val socketFile: File,
     private val onResize: ((Int, Int) -> Boolean)? = null,
+    private val maxRetries: Int = DEFAULT_MAX_RETRIES,
+    private val retryDelayMs: Long = DEFAULT_RETRY_DELAY_MS,
 ) : PtyConnector {
     override fun connect(
         cols: Int,
         rows: Int,
     ): PtyConnection {
-        val socket = LocalSocket(LocalSocket.SOCKET_STREAM)
-        try {
-            val address =
-                LocalSocketAddress(
-                    socketFile.absolutePath,
-                    LocalSocketAddress.Namespace.FILESYSTEM,
-                )
-            socket.connect(address)
-            onResize?.invoke(cols, rows)
-            return UnixSocketPtyConnection(socket, onResize)
-        } catch (e: IOException) {
-            closeQuietly(socket)
-            throw e
+        var lastException: IOException? = null
+        for (attempt in 0..maxRetries) {
+            val socket = LocalSocket(LocalSocket.SOCKET_STREAM)
+            try {
+                val address =
+                    LocalSocketAddress(
+                        socketFile.absolutePath,
+                        LocalSocketAddress.Namespace.FILESYSTEM,
+                    )
+                socket.connect(address)
+                onResize?.invoke(cols, rows)
+                return UnixSocketPtyConnection(socket, onResize)
+            } catch (e: IOException) {
+                closeQuietly(socket)
+                lastException = e
+                if (attempt < maxRetries) {
+                    try {
+                        Thread.sleep(retryDelayMs)
+                    } catch (ie: InterruptedException) {
+                        Thread.currentThread().interrupt()
+                        throw IOException("Interrupted while waiting for PTY socket readiness", ie)
+                    }
+                }
+            }
         }
+        throw lastException ?: IOException("Failed to connect to PTY Unix domain socket at ${socketFile.absolutePath}")
     }
 
     private fun closeQuietly(socket: LocalSocket) {
@@ -91,6 +105,8 @@ class UnixSocketPtyConnector(
 
     companion object {
         private const val TAG = "UnixSocketPtyConnector"
+        const val DEFAULT_MAX_RETRIES = 10
+        const val DEFAULT_RETRY_DELAY_MS = 500L
     }
 }
 

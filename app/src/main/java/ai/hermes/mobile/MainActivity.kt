@@ -131,6 +131,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val DEFAULT_UI_URL = "http://127.0.0.1:8888/"
+        const val DEFAULT_UI_URL = "http://127.0.0.1:8787/"
     }
 }
