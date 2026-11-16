@@ -111,6 +111,7 @@ class RootfsExtractor(
      * Pure Java implementation of tar.gz extraction that does not rely on system tar or toybox,
      * fully bypassing Android SELinux domain restrictions.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun extractTarGzJvm(tarGzFile: File): Boolean {
         try {
             java.io.FileInputStream(tarGzFile).use { fis ->
