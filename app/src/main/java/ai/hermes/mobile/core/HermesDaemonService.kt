@@ -169,14 +169,52 @@ class HermesDaemonService : Service() {
         ) {
             return
         }
-        val topology = ai.hermes.mobile.engine.StorageTopology(this)
+        val topology =
+            ai.hermes.mobile.engine
+                .StorageTopology(this)
         topology.initialize()
-        val config = ai.hermes.mobile.engine.PRootConfig.fromTopology(
-            topology = topology,
-            ipcToken = ipcToken.rawToken(),
-        )
+
+        // Ensure asset rootfs and static proot are unpacked into storage
+        val extractor =
+            ai.hermes.mobile.engine
+                .RootfsExtractor(topology.rootfsDir)
+        if (!extractor.isExtracted()) {
+            try {
+                val assetName =
+                    if (assets.list("")?.contains("hermes-rootfs-aarch64.tar.gz") == true) {
+                        "hermes-rootfs-aarch64.tar.gz"
+                    } else {
+                        "hermes-rootfs-aarch64.tar"
+                    }
+                assets.open(assetName).use { input ->
+                    val tempTar = java.io.File(topology.scratchDir, assetName)
+                    tempTar.outputStream().use { output -> input.copyTo(output) }
+                    val extracted =
+                        extractor.extractFromTarGz(
+                            tarGzFile = tempTar,
+                            targetVersion = "0.1.0",
+                        )
+                    tempTar.delete()
+                    Log.i(TAG, "Rootfs extracted from assets ($assetName): success=$extracted")
+                }
+            } catch (e: java.io.IOException) {
+                Log.w(TAG, "Failed to extract rootfs asset: ${e.message}")
+            }
+        }
+
+        val nativeLibDir = applicationInfo.nativeLibraryDir?.let { java.io.File(it) }
+        val daemonCommand = listOf("/opt/hermes-venv/bin/hermes", "serve", "--host", "127.0.0.1", "--port", "8787")
+        val config =
+            ai.hermes.mobile.engine.PRootConfig.fromTopology(
+                topology = topology,
+                ipcToken = ipcToken.rawToken(),
+                command = daemonCommand,
+                nativeLibDir = nativeLibDir,
+            )
         if (config.prootBinary.exists()) {
-            val supervisor = ai.hermes.mobile.engine.DaemonSupervisor(config)
+            val supervisor =
+                ai.hermes.mobile.engine
+                    .DaemonSupervisor(config)
             daemonSupervisor = supervisor
             val started = supervisor.start()
             Log.i(TAG, "DaemonSupervisor launch initiated: success=$started")

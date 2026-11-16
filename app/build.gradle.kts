@@ -43,6 +43,11 @@ android {
         jvmTarget = "17"
     }
 
+    androidResources {
+        noCompress.add("tar.gz")
+        noCompress.add("gz")
+    }
+
     buildFeatures {
         viewBinding = true
     }

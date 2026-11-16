@@ -94,13 +94,16 @@ internal class AndroidBatteryDataSource(
         return BatteryRawReading(
             level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1,
             scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, DEFAULT_SCALE) ?: DEFAULT_SCALE,
-            status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
-                ?: BatteryManager.BATTERY_STATUS_UNKNOWN,
+            status =
+                intent?.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
+                    ?: BatteryManager.BATTERY_STATUS_UNKNOWN,
             plugged = intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0,
-            temperatureTenthsC = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, MISSING_TEMPERATURE)
-                ?: MISSING_TEMPERATURE,
-            health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
-                ?: BatteryManager.BATTERY_HEALTH_UNKNOWN,
+            temperatureTenthsC =
+                intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, MISSING_TEMPERATURE)
+                    ?: MISSING_TEMPERATURE,
+            health =
+                intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
+                    ?: BatteryManager.BATTERY_HEALTH_UNKNOWN,
             fallbackCharging = fallbackCharging,
             fallbackCapacity = fallbackCapacity,
         )

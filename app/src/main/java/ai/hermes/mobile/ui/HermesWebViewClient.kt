@@ -13,7 +13,7 @@ import android.webkit.WebViewClient
  * Hardened WebViewClient enforcing external URL redirection to the system browser
  * per SECURITY-SANDBOX.md.
  */
-class HermesWebViewClient(
+open class HermesWebViewClient(
     private val context: Context,
     private val externalUrlLauncher: ((Uri) -> Boolean)? = null,
 ) : WebViewClient() {

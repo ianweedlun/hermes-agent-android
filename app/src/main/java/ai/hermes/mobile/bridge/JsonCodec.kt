@@ -66,14 +66,12 @@ internal object JsonCodec {
     fun requireString(
         map: Map<String, Any?>,
         key: String,
-    ): String =
-        (map[key] as? String) ?: throw IllegalArgumentException("Missing or invalid string field '$key'")
+    ): String = (map[key] as? String) ?: throw IllegalArgumentException("Missing or invalid string field '$key'")
 
     fun requireBoolean(
         map: Map<String, Any?>,
         key: String,
-    ): Boolean =
-        (map[key] as? Boolean) ?: throw IllegalArgumentException("Missing or invalid boolean field '$key'")
+    ): Boolean = (map[key] as? Boolean) ?: throw IllegalArgumentException("Missing or invalid boolean field '$key'")
 
     fun requireInt(
         map: Map<String, Any?>,

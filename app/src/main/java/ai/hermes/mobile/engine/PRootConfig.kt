@@ -64,6 +64,7 @@ data class PRootConfig(
             mutableMapOf(
                 "HOME" to "/home/hermes",
                 "TMPDIR" to "/tmp",
+                "PROOT_TMP_DIR" to scratchDir.absolutePath,
                 "PATH" to DEFAULT_PATH,
                 "TERM" to "xterm-256color",
                 "LANG" to "en_US.UTF-8",
@@ -75,7 +76,7 @@ data class PRootConfig(
     }
 
     companion object {
-        val DEFAULT_COMMAND = listOf("/bin/sh")
+        val DEFAULT_COMMAND = listOf("/opt/hermes-venv/bin/hermes", "serve", "--host", "127.0.0.1", "--port", "8787")
         const val DEFAULT_PATH = "/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
 
         fun fromTopology(
@@ -83,16 +84,20 @@ data class PRootConfig(
             ipcToken: String? = null,
             sharedStorageDir: File? = null,
             command: List<String> = DEFAULT_COMMAND,
+            nativeLibDir: File? = null,
         ): PRootConfig {
             val prootInBin = File(topology.binDir, "proot")
             val prootInRootfs = File(topology.rootfsDir, "bin/proot")
             val prootInUsrBin = File(topology.rootfsDir, "usr/bin/proot")
-            val prootBinary = when {
-                prootInBin.exists() -> prootInBin
-                prootInRootfs.exists() -> prootInRootfs
-                prootInUsrBin.exists() -> prootInUsrBin
-                else -> prootInBin
-            }
+            val prootInNativeLib = nativeLibDir?.let { File(it, "libproot.so") }
+            val prootBinary =
+                when {
+                    prootInBin.exists() -> prootInBin
+                    prootInNativeLib?.exists() == true -> prootInNativeLib
+                    prootInRootfs.exists() -> prootInRootfs
+                    prootInUsrBin.exists() -> prootInUsrBin
+                    else -> prootInBin
+                }
             return PRootConfig(
                 prootBinary = prootBinary,
                 rootfsDir = topology.rootfsDir,

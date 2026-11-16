@@ -9,7 +9,6 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class BootstrapExtractionTest {
-
     @get:Rule
     val tempFolder: TemporaryFolder = TemporaryFolder()
 
@@ -24,15 +23,16 @@ class BootstrapExtractionTest {
 
         assertFalse(extractor.isExtracted())
 
-        val success = extractor.extractFromTarGz(
-            tarGzFile = archiveFile,
-            targetVersion = "0.2.0-alpine",
-            tarExecutable = "/system/bin/tar",
-            runner = { cmd ->
-                capturedCommand = cmd
-                true
-            },
-        )
+        val success =
+            extractor.extractFromTarGz(
+                tarGzFile = archiveFile,
+                targetVersion = "0.2.0-alpine",
+                tarExecutable = "/system/bin/tar",
+                runner = { cmd ->
+                    capturedCommand = cmd
+                    true
+                },
+            )
 
         assertTrue(success)
         assertTrue(extractor.isExtracted())
@@ -61,11 +61,12 @@ class BootstrapExtractionTest {
 
         val extractor = RootfsExtractor(rootfsDir)
 
-        val success = extractor.extractFromTarGz(
-            tarGzFile = archiveFile,
-            targetVersion = "0.2.0-alpine",
-            runner = { false },
-        )
+        val success =
+            extractor.extractFromTarGz(
+                tarGzFile = archiveFile,
+                targetVersion = "0.2.0-alpine",
+                runner = { false },
+            )
 
         assertFalse(success)
         assertFalse(extractor.isExtracted())
@@ -80,11 +81,12 @@ class BootstrapExtractionTest {
 
         val extractor = RootfsExtractor(rootfsDir)
 
-        val success = extractor.extractFromTarGz(
-            tarGzFile = nonExistentArchive,
-            targetVersion = "0.2.0-alpine",
-            runner = { true },
-        )
+        val success =
+            extractor.extractFromTarGz(
+                tarGzFile = nonExistentArchive,
+                targetVersion = "0.2.0-alpine",
+                runner = { true },
+            )
 
         assertFalse(success)
         assertFalse(extractor.isExtracted())

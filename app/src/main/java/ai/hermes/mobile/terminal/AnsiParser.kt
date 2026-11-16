@@ -6,13 +6,23 @@ package ai.hermes.mobile.terminal
 sealed class TerminalColor {
     data object Default : TerminalColor()
 
-    data class Standard(val index: Int) : TerminalColor()
+    data class Standard(
+        val index: Int,
+    ) : TerminalColor()
 
-    data class Bright(val index: Int) : TerminalColor()
+    data class Bright(
+        val index: Int,
+    ) : TerminalColor()
 
-    data class Indexed256(val index: Int) : TerminalColor()
+    data class Indexed256(
+        val index: Int,
+    ) : TerminalColor()
 
-    data class Rgb(val red: Int, val green: Int, val blue: Int) : TerminalColor()
+    data class Rgb(
+        val red: Int,
+        val green: Int,
+        val blue: Int,
+    ) : TerminalColor()
 }
 
 /**
@@ -57,7 +67,10 @@ data class TerminalLine(
  * Parsed token emitted by [AnsiParser] from raw PTY byte/text streams.
  */
 sealed class AnsiToken {
-    data class Text(val value: String, val style: AnsiTextStyle) : AnsiToken()
+    data class Text(
+        val value: String,
+        val style: AnsiTextStyle,
+    ) : AnsiToken()
 
     data object NewLine : AnsiToken()
 
@@ -75,11 +88,19 @@ sealed class AnsiToken {
 
     data object CursorHome : AnsiToken()
 
-    data class CursorPosition(val row: Int, val col: Int) : AnsiToken()
+    data class CursorPosition(
+        val row: Int,
+        val col: Int,
+    ) : AnsiToken()
 
-    data class CursorMove(val rowDelta: Int, val colDelta: Int) : AnsiToken()
+    data class CursorMove(
+        val rowDelta: Int,
+        val colDelta: Int,
+    ) : AnsiToken()
 
-    data class CursorVisibility(val visible: Boolean) : AnsiToken()
+    data class CursorVisibility(
+        val visible: Boolean,
+    ) : AnsiToken()
 }
 
 /**

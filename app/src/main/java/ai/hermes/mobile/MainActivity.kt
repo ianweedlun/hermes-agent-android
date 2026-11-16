@@ -2,6 +2,7 @@ package ai.hermes.mobile
 
 import ai.hermes.mobile.core.HermesNotificationManager
 import ai.hermes.mobile.databinding.ActivityMainBinding
+import ai.hermes.mobile.engine.AuthTokenManager
 import ai.hermes.mobile.engine.StorageTopology
 import ai.hermes.mobile.terminal.TerminalDrawerManager
 import ai.hermes.mobile.terminal.TerminalPtyBridge
@@ -11,13 +12,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 
 /**
@@ -41,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         setupInsets()
         setupWebView()
         setupTerminalDrawer()
+        startDaemonService()
         handleIntent(intent)
     }
 
@@ -95,7 +94,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupWebView() {
         HermesWebViewManager.configure(binding.webView)
-        binding.webView.loadUrl(DEFAULT_UI_URL)
+        val topology = StorageTopology(this)
+        val uiUrl = AuthTokenManager.buildWebUiUrl(topology.stateDir)
+        binding.webView.postDelayed({ binding.webView.loadUrl(uiUrl) }, 500)
     }
 
     private fun setupTerminalDrawer() {
@@ -114,6 +115,13 @@ class MainActivity : AppCompatActivity() {
         ptyBridge.start()
     }
 
+    private fun startDaemonService() {
+        val intent =
+            ai.hermes.mobile.core.HermesDaemonService
+                .startIntent(this)
+        ContextCompat.startForegroundService(this, intent)
+    }
+
     private fun handleIntent(targetIntent: Intent?) {
         if (targetIntent?.action == HermesNotificationManager.ACTION_OPEN_TERMINAL &&
             ::terminalDrawerManager.isInitialized
@@ -123,6 +131,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val DEFAULT_UI_URL = "http://127.0.0.1:8787/"
+        const val DEFAULT_UI_URL = "http://127.0.0.1:8888/"
     }
 }
