@@ -1,0 +1,4 @@
+avd.ini.encoding=UTF-8
+path=/Users/ian/.android/avd/hermes_test_avd.avd
+path.rel=avd/hermes_test_avd.avd
+target=android-34
