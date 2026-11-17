@@ -1,0 +1,2 @@
+hermes_lab_pixel
+hermes_test_avd
